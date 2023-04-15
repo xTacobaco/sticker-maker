@@ -103,6 +103,10 @@ requestAnimationFrame(function animate() {
     renderer.setClearColor(0x202020, 1);
     plane.rotation.y += Math.sin(Date.now()/1000 * 2)/5;
     stickerMaterial.uniforms.time.value = plane.rotation.y;
+    stickerMaterial.uniforms.albedo.value = albedo;
+    stickerMaterial.uniforms.outline.value = outline;
+    backsideMaterial.alphaMap = alphaMap;
+    outlinemesh.material.alphaMap = alphaMap;
     renderer.render(scene, camera);
 });
 
@@ -110,7 +114,22 @@ touchmaster95(renderer.domElement, {
     useSpring: true,
     minZoom: 0.5,
     maxZoom: 2,
-}, ({ x, zoom }) => {
+}, ({ x }) => {
     plane.rotation.y = x/100;
     camera.position.z = 3;
 });
+
+let button = document.createElement('button');
+button.innerHTML = 'Change Sticker';
+button.addEventListener('click', async () => {
+    url = window.prompt('Image url', url);
+    let {
+        albedo: albedoImageData, 
+        outline: outlineImageData, 
+        alphaMap: alphaMapImageData,
+    } = await createStickerImages(url, 512, 512);
+    albedo = texturize(albedoImageData);
+    alphaMap = texturize(alphaMapImageData);
+    outline = texturize(outlineImageData);
+});
+document.body.append(button);
