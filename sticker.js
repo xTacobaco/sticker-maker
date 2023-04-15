@@ -1,5 +1,7 @@
 export default async function createStickerImages(url, width, height) {
-    const canvas = new OffscreenCanvas(width, height);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.willReadFrequently = true;
     var img = new Image();

@@ -30,7 +30,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 1000);
 renderer.setSize(width, height);
   
-let url = 'https://media.discordapp.net/attachments/530169777843339265/1096691745917509642/image.png';
+let url = window.location+'example.png';
 let texturize = (imageData) => {
     const texture = new THREE.Texture(imageData)
     texture.needsUpdate = true;
