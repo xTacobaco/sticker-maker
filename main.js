@@ -1,11 +1,14 @@
 import './style.css';
 import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-import createStickerImages from './sticker.js'
+import roundrect from './roundrect';
+import touchmaster95 from './touchmaster95';
+import createStickerImages from './sticker';
 
 import vertexShader from './shader/vertexShader';
 import fragmentShader from './shader/fragmentShader';
-import touchmaster95 from './touchmaster95';
 
 const renderer = new THREE.WebGLRenderer();
 document.body.appendChild(renderer.domElement);
@@ -13,7 +16,7 @@ document.body.appendChild(renderer.domElement);
 let width = Math.min(window.innerWidth, 512);
 let height = width;
 
-window.addEventListener( 'resize', onWindowResize, false );
+window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize(){
     width = Math.min(window.innerWidth, 512);
@@ -42,20 +45,6 @@ let albedo = texturize(albedoImageData);
 let alphaMap = texturize(alphaMapImageData);
 let outline = texturize(outlineImageData);
 
-let x = 0, y = 0, w = 1, h = 1, radius = 0.04
-const shape = new THREE.Shape();
-shape.moveTo(x, y + radius);
-shape.lineTo(x, y + h - radius);
-shape.quadraticCurveTo(x, y + h, x + radius, y + h);
-shape.lineTo(x + w - radius, y + h);
-shape.quadraticCurveTo(x + w, y + h, x + w, y + h - radius);
-shape.lineTo(x + w, y + radius);
-shape.quadraticCurveTo(x + w, y, x + w - radius, y);
-shape.lineTo(x + radius, y);
-shape.quadraticCurveTo(x, y, x, y + radius);
-const roundrect = new THREE.ShapeGeometry(shape);
-roundrect.translate(-w/2, -h/2, 0);
-
 const stickerMaterial = new THREE.RawShaderMaterial({
     uniforms: {
         albedo: { value: albedo },
@@ -74,11 +63,38 @@ outlinemesh.position.z = -0.001;
 outlinemesh.scale.x = outlinemesh.scale.y = 1.06;
 plane.add(stickermesh);
 plane.add(outlinemesh);
+const loader = new FontLoader();
+await loader.load( 'fonts/helvetiker_bold.typeface.json', function ( font ) {
+	const title = new TextGeometry( 'Sticker Name', {
+		font: font,
+		size: 0.05,
+		height: 0.001,
+	});
+    title.center();
+    const titleMesh = new THREE.Mesh(title, new THREE.MeshBasicMaterial({ color: 0x323232 }));
+    titleMesh.position.z = -0.01;
+    titleMesh.position.y = 0.2;
+    titleMesh.rotation.y = Math.PI;
+    plane.add(titleMesh);
+
+    const date = new TextGeometry(new Date().toDateString(), {
+		font: font,
+		size: 0.05,
+		height: 0.001,
+	});
+    date.center();
+    const dateMesh = new THREE.Mesh(date, new THREE.MeshBasicMaterial({ color: 0x323232 }));
+    dateMesh.position.z = -0.01;
+    dateMesh.position.y = 0;
+    dateMesh.rotation.y = Math.PI;
+    plane.add(dateMesh);
+});
 scene.add(plane);
 
 requestAnimationFrame(function animate() {
     requestAnimationFrame(animate);
     renderer.setClearColor(0x202020, 1);
+    plane.rotation.y += Math.sin(Date.now()/1000 * 2)/5;
     stickerMaterial.uniforms.time.value = plane.rotation.y;
     renderer.render(scene, camera);
 });
