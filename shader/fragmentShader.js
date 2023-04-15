@@ -25,7 +25,9 @@ void main() {
     vec3 rainbowColor = rainbow(rainbowPosition, 2.0);
     float outlineValue = min(0.2, 1.0-outline.a);
     albedo.rgb = mix(albedo.rgb, rainbowColor, outlineValue);
-    
+
+    albedo.rgb = mix(albedo.rgb, vec3(0.976,0.996,1.), outline.a);
+
     gl_FragColor = albedo;
 }
 `;
